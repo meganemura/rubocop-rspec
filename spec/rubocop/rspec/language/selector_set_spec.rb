@@ -34,15 +34,29 @@ RSpec.describe RuboCop::RSpec::Language::SelectorSet do
   end
 
   describe '#send_pattern' do
-    it 'builds a send matching pattern' do
-      expect(selector_set.send_pattern).to eql('(send _ {:foo :bar} ...)')
+    context 'with restrict_receivers' do
+      it 'builds a send matching pattern with specific set of receivers' do
+        expect(selector_set.send_pattern).to eql(
+          '(send {(const nil? :RSpec) nil?} {:foo :bar} ...)'
+        )
+      end
+    end
+
+    context 'without restrict_receivers' do
+      subject(:selector_set) { described_class.new(%i[foo bar], false) }
+
+      it 'builds a send matching pattern with any receiver' do
+        expect(selector_set.send_pattern).to eql(
+          '(send _ {:foo :bar} ...)'
+        )
+      end
     end
   end
 
   describe '#block_pattern' do
     it 'builds a block matching pattern' do
       expect(selector_set.block_pattern).to eql(
-        '(block (send _ {:foo :bar} ...) ...)'
+        '(block (send {(const nil? :RSpec) nil?} {:foo :bar} ...) ...)'
       )
     end
   end

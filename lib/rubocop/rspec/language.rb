@@ -6,8 +6,9 @@ module RuboCop
     module Language
       # Set of method selectors
       class SelectorSet
-        def initialize(selectors)
+        def initialize(selectors, restrict_receivers = true)
           @selectors = selectors
+          @restrict_receivers = restrict_receivers
         end
 
         def ==(other)
@@ -27,7 +28,8 @@ module RuboCop
         end
 
         def send_pattern
-          "(send _ #{node_pattern_union} ...)"
+          receiver = @restrict_receivers ? '{(const nil? :RSpec) nil?}' : '_'
+          "(send #{receiver} #{node_pattern_union} ...)"
         end
 
         def node_pattern_union
@@ -44,7 +46,10 @@ module RuboCop
       end
 
       module Matchers
-        MESSAGE_CHAIN = SelectorSet.new(%i[receive_message_chain stub_chain])
+        MESSAGE_CHAIN = SelectorSet.new(
+          %i[receive_message_chain stub_chain],
+          false
+        )
       end
 
       module ExampleGroups

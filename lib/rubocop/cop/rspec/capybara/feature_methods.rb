@@ -53,11 +53,7 @@ module RuboCop
             feature:    :describe
           }.freeze
 
-          def_node_matcher :spec?, <<-PATTERN
-            (block
-              (send {(const nil? :RSpec) nil?} {:describe :feature} ...)
-            ...)
-          PATTERN
+          def_node_matcher :spec?, ExampleGroups::ALL.block_pattern
 
           def_node_matcher :feature_method, <<-PATTERN
             (block
